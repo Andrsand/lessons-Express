@@ -1,8 +1,13 @@
 const express = require("express");
+
 const app = express();
 
-app.use("/home/foo/bar", function (request, response) {
-    response.status(404).send(`Ресурс не найден`);
+
+app.use("/static", express.static(__dirname + "/public"));
+
+app.use("/", function (request, response) {
+
+    response.send("<h1>Главная страница</h1>");
 });
 
 app.listen(3000);
