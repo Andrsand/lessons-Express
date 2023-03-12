@@ -2,9 +2,9 @@ const express = require("express");
 const app = express();
 
 app.use("/home", function (request, response) {
-    response.redirect("about")
+    response.redirect("/index")
 });
-app.use("/about", function (request, response) {
+app.use("/index", function (request, response) {
     response.send("<h1>About</h1>");
 });
 
