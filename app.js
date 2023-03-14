@@ -1,11 +1,15 @@
 const express = require("express");
-const app = express();
 
-app.use("/home", function (request, response) {
-    response.redirect("/index")
+const app = express();
+app.get("/", function (request, response) {
+
+    response.send("<h1>ГUлавная страница</h1>");
 });
-app.use("/index", function (request, response) {
-    response.send("<h1>About</h1>");
+app.use("/about", function (request, response) {
+
+    let id = request.query.id;
+    let userName = request.query.name;
+    response.send("<h1>Информация</h1><p>id=" + id + "</p><p>name=" + userName + "</p>");
 });
 
 app.listen(3000);
