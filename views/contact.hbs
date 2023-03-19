@@ -7,20 +7,12 @@
 </head>
 
 <body>
+    {{> menus}}
 
     <h1>{{title}}</h1>
-
-    {{#if emailsVisible}}
-    <h3>Электронные адреса</h3>
-    <ul>
-        {{#each emails}} <!-- Для перебора массивов можно воспользоваться конструкцией each-->
-        <li>{{this}}</li>
-        {{/each}}
-    </ul>
-    {{/if}}
-    {{#unless emailsVisible}}
-    <p> no emails</p>
-    {{/unless}}
+    <p>Электронный адрес: {{email}}</p>
     <p>Телефон: {{phone}}</p>
+
+    {{> footer}}
 </body>
 <html>
