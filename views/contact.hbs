@@ -7,8 +7,20 @@
 </head>
 
 <body>
+
     <h1>{{title}}</h1>
-    <p>Электронный адрес: {{email}}</p>
+
+    {{#if emailsVisible}}
+    <h3>Электронные адреса</h3>
+    <ul>
+        {{#each emails}} <!-- Для перебора массивов можно воспользоваться конструкцией each-->
+        <li>{{this}}</li>
+        {{/each}}
+    </ul>
+    {{/if}}
+    {{#unless emailsVisible}}
+    <p> no emails</p>
+    {{/unless}}
     <p>Телефон: {{phone}}</p>
 </body>
 <html>
