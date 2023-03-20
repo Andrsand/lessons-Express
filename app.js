@@ -1,30 +1,28 @@
 const express = require("express");
-const expressHbs = require("express-handlebars");
 const hbs = require("hbs");
+
 const app = express();
 
-// устанавливаем настройки для файлов layout
-app.engine("hbs", expressHbs.engine(
-  {
-    layoutsDir: "/views/layouts",
-    defaultLayout: "layout",
-    extname: "hbs"
+hbs.registerHelper("getTime", function () {
+
+  const myDate = new Date();
+  const hour = myDate.getHours();
+  let minute = myDate.getMinutes();
+  let second = myDate.getSeconds();
+  if (minute < 10) {
+    minute = "0" + minute;
   }
-))
-app.set("view engine", "hbs");
-hbs.registerPartials(__dirname + "/views/partials");
-
-app.use("/contact", function (_, response) {
-
-  response.render("contact", {
-    title: "Мои контакты",
-    email: "gavgav@mycorp.com",
-    phone: "+1234567890"
-  });
+  if (second < 10) {
+    second = "0" + second;
+  }
+  return `Текущее время: ${hour}:${minute}:${second}`;
 });
 
-app.use("/", function (_, response) {
+app.set("view engine", "hbs");
+
+app.get("/", function (_, response) {
 
   response.render("home.hbs");
 });
+
 app.listen(3000);
