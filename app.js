@@ -18,11 +18,22 @@ hbs.registerHelper("getTime", function () {
   return `Текущее время: ${hour}:${minute}:${second}`;
 });
 
+hbs.registerHelper("createStringList", function (array) {
+
+  let result = "";
+  for (let i = 0; i < array.length; i++) {
+    result += `<li>${array[i]}</li>`;
+  }
+  return new hbs.SafeString(`<ul>${result}</ul>`);
+});
+
+
 app.set("view engine", "hbs");
 
 app.get("/", function (_, response) {
 
-  response.render("home.hbs");
+  response.render("home.hbs", {
+    fruit: ["apple", "lemon", "banana", "grape"]
+  });
 });
-
 app.listen(3000);
