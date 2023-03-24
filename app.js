@@ -1,39 +1,120 @@
 const express = require("express");
-const hbs = require("hbs");
+const fs = require("fs");
 
 const app = express();
+const jsonParser = express.json();
 
-hbs.registerHelper("getTime", function () {
+app.use(express.static(__dirname + "/public"));
 
-  const myDate = new Date();
-  const hour = myDate.getHours();
-  let minute = myDate.getMinutes();
-  let second = myDate.getSeconds();
-  if (minute < 10) {
-    minute = "0" + minute;
+const filePath = "users.json";
+app.get("/api/users", function (req, res) {
+
+  const content = fs.readFileSync(filePath, "utf8");
+  const users = JSON.parse(content);
+  res.send(users);
+});
+// получение одного пользователя по id
+app.get("/api/users/:id", function (req, res) {
+
+  const id = req.params.id; // получаем id
+  const content = fs.readFileSync(filePath, "utf8");
+  const users = JSON.parse(content);
+  let user = null;
+  // находим в массиве пользователя по id
+  for (var i = 0; i < users.length; i++) {
+    if (users[i].id == id) {
+      user = users[i];
+      break;
+    }
   }
-  if (second < 10) {
-    second = "0" + second;
+  // отправляем пользователя
+  if (user) {
+    res.send(user);
   }
-  return `Текущее время: ${hour}:${minute}:${second}`;
+  else {
+    res.status(404).send();
+  }
+});
+// получение отправленных данных
+app.post("/api/users", jsonParser, function (req, res) {
+
+  if (!req.body) return res.sendStatus(400);
+
+  const userName = req.body.name;
+  const userAge = req.body.age;
+  let user = { name: userName, age: userAge };
+
+  let data = fs.readFileSync(filePath, "utf8");
+  let users = JSON.parse(data);
+
+  // находим максимальный id
+  const id = Math.max.apply(Math, users.map(function (o) { return o.id; }))
+  // увеличиваем его на единицу
+  user.id = id + 1;
+  // добавляем пользователя в массив
+  users.push(user);
+  data = JSON.stringify(users);
+  // перезаписываем файл с новыми данными
+  fs.writeFileSync("users.json", data);
+  res.send(user);
+});
+// удаление пользователя по id
+app.delete("/api/users/:id", function (req, res) {
+
+  const id = req.params.id;
+  let data = fs.readFileSync(filePath, "utf8");
+  let users = JSON.parse(data);
+  let index = -1;
+  // находим индекс пользователя в массиве
+  for (var i = 0; i < users.length; i++) {
+    if (users[i].id == id) {
+      index = i;
+      break;
+    }
+  }
+  if (index > -1) {
+    // удаляем пользователя из массива по индексу
+    const user = users.splice(index, 1)[0];
+    data = JSON.stringify(users);
+    fs.writeFileSync("users.json", data);
+    // отправляем удаленного пользователя
+    res.send(user);
+  }
+  else {
+    res.status(404).send();
+  }
+});
+// изменение пользователя
+app.put("/api/users", jsonParser, function (req, res) {
+
+  if (!req.body) return res.sendStatus(400);
+
+  const userId = req.body.id;
+  const userName = req.body.name;
+  const userAge = req.body.age;
+
+  let data = fs.readFileSync(filePath, "utf8");
+  const users = JSON.parse(data);
+  let user;
+  for (var i = 0; i < users.length; i++) {
+    if (users[i].id == userId) {
+      user = users[i];
+      break;
+    }
+  }
+  // изменяем данные у пользователя
+  if (user) {
+    user.age = userAge;
+    user.name = userName;
+    data = JSON.stringify(users);
+    fs.writeFileSync("users.json", data);
+    res.send(user);
+  }
+  else {
+    res.status(404).send(user);
+  }
 });
 
-hbs.registerHelper("createStringList", function (array) {
-
-  let result = "";
-  for (let i = 0; i < array.length; i++) {
-    result += `<li>${array[i]}</li>`;
-  }
-  return new hbs.SafeString(`<ul>${result}</ul>`);
+app.listen(3000, function () {
+  console.log("Сервер ожидает подключения...");
 });
-
-
-app.set("view engine", "hbs");
-
-app.get("/", function (_, response) {
-
-  response.render("home.hbs", {
-    fruit: ["apple", "lemon", "banana", "grape"]
-  });
-});
-app.listen(3000);
